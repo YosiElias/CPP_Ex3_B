@@ -36,34 +36,54 @@ namespace zich{
         }
     }
 
+    Matrix::Matrix(Matrix &other) {
+        this->_mat.resize(size_t(other.getRow()));
+        for (size_t i= 0 ; i< other.getRow(); i++){
+            this->_mat.at(i).resize(size_t(other.getColmn()));
+        }
+        for (size_t r=0, i=0; r< this->getRow(); r++){
+            for (size_t c = 0; c < this->getColmn(); ++c) {
+                this->_mat.at(r).at(c) = other._mat.at(r).at(c);
+            }
+        }
+    }
+
+
 //----------------------------------------
 // basic operators
 //----------------------------------------
 
     Matrix operator++(Matrix &c1){
-        return c1+=1;
+//        Matrix ans = c1+1;
+        c1+=1;
+        return c1;
     }
 
     Matrix operator--(Matrix &c1){
-        return c1-=1;
+        c1-=1; //Todo: change!
+        return c1;
+//        Matrix ans = c1-1;
+//        return c1;
     }
 
     Matrix Matrix::operator++(int) {
+        Matrix ans(*this);
         for (size_t r= 0 ; r < this->getRow(); r++) {
             for (size_t c = 0; c < this->getColmn(); c++) {
                 this->_mat.at(r).at(c) += 1;
             }
         }
-        return *this;
+        return ans;
     }
 
     Matrix Matrix::operator--(int) {
+        Matrix ans(*this);
         for (size_t r= 0 ; r < this->getRow(); r++) {
             for (size_t c = 0; c < this->getColmn(); c++) {
                 this->_mat.at(r).at(c) -= 1;
             }
         }
-        return *this;
+        return ans;
     }
 
 //----------------------------------------
@@ -77,7 +97,8 @@ namespace zich{
                 v.push_back(this->_mat.at(r).at(c));
             }
         }
-        return Matrix(v, this->getRow(),this->getColmn());
+        Matrix ans(v, this->getRow(),this->getColmn());
+        return ans;
     }
 
     Matrix Matrix::operator-() const {
@@ -87,7 +108,8 @@ namespace zich{
                 v.push_back(-1*(this->_mat.at(r).at(c)));
             }
         }
-        return Matrix(v, this->getRow(),this->getColmn());
+        Matrix ans(v, this->getRow(),this->getColmn());
+        return ans;
     }
 
 //----------------------------------------
@@ -147,6 +169,28 @@ namespace zich{
 // friend global binary operators
 //----------------------------------------
 
+    Matrix operator-(const Matrix &c1, double d) {
+        vector<double> v;
+        for (size_t r= 0 ; r < c1.getRow(); r++) {
+            for (size_t c = 0; c < c1.getColmn(); c++) {
+                v.push_back(c1._mat.at(r).at(c) - d);
+            }
+        }
+        Matrix ans(v, c1.getRow(),c1.getColmn());
+        return ans;
+    }
+
+    Matrix operator+(const Matrix &c1, double d) {
+        vector<double> v;
+        for (size_t r= 0 ; r < c1.getRow(); r++) {
+            for (size_t c = 0; c < c1.getColmn(); c++) {
+                v.push_back(c1._mat.at(r).at(c) + d);
+            }
+        }
+        Matrix ans(v, c1.getRow(),c1.getColmn());
+        return ans;
+    }
+
     Matrix operator-(const Matrix& c1, const Matrix& c2) {
         c1.checkLegalOper(c1, c2);
         vector<double> v;
@@ -155,7 +199,8 @@ namespace zich{
                 v.push_back(c1._mat.at(r).at(c) - c2._mat.at(r).at(c));
             }
         }
-        return Matrix(v, c1.getRow(),c1.getColmn());
+        Matrix ans(v, c1.getRow(),c1.getColmn());
+        return ans;
     }
 
     Matrix operator*(Matrix &c1, const Matrix &c2) {
@@ -210,7 +255,8 @@ namespace zich{
                 v.push_back(c1._mat.at(r).at(c) + c2._mat.at(r).at(c));
             }
         }
-        return Matrix(v, c1.getRow(),c1.getColmn());
+        Matrix ans(v, c1.getRow(),c1.getColmn());
+        return ans;
     }
 
 //    Matrix operator-(double d, const Matrix &c1){
@@ -230,7 +276,8 @@ namespace zich{
                 v.push_back(c1._mat.at(r).at(c) * d);
             }
         }
-        return Matrix(v, c1.getRow(),c1.getColmn());
+        Matrix ans(v, c1.getRow(),c1.getColmn());
+        return ans;
     }
 
     Matrix operator*(const Matrix &c1, double d){
@@ -240,7 +287,8 @@ namespace zich{
                 v.push_back(c1._mat.at(r).at(c) * d);
             }
         }
-        return Matrix(v, c1.getRow(),c1.getColmn());
+        Matrix ans(v, c1.getRow(),c1.getColmn());
+        return ans;
     }
 
 //                    Todo:

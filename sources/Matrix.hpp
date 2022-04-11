@@ -22,6 +22,7 @@ namespace zich {
 
         // Constructor:
         Matrix(std::vector<double> v, int row, int col);
+        Matrix(Matrix& other);
 //            checkLegal(v, col, row);
 //            this->_mat.resize(row);
 //            for (int i= 0 ; i< row; i++){
@@ -94,13 +95,13 @@ namespace zich {
 
         friend Matrix operator+(const Matrix &c1, const Matrix &c2);
 
-        friend Matrix operator-(double d, const Matrix &c2);
+        friend Matrix operator-(const Matrix &c1, double d);
 
         friend Matrix operator*(double d, const Matrix &c2);
 
         friend Matrix operator*(const Matrix &c2, double d);
 
-        friend Matrix operator+(const Matrix &c2, double d);
+        friend Matrix operator+(const Matrix &c1, double d);
 
         friend Matrix operator-=(Matrix &c2, double d);
 
