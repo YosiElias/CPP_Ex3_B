@@ -1,25 +1,18 @@
+/**
+ * Implementation of Matrix class.
+ *
+ * @author Yossi Elias
+ * @since 2022
+ */
+
 
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include <stdexcept>
 #include <bits/stdc++.h>
+#include "Matrix.hpp"
 using namespace std;
 
-#include "Matrix.hpp"
 namespace zich{
-
-    void Matrix::checkLegal(vector<double> & v, int col, int row){
-        if (col * row != v.size()) {
-            throw invalid_argument("size error");
-        }
-        if (col < 0){
-            throw invalid_argument("size error");
-        }
-        if (row < 0) {
-            throw invalid_argument("size error");
-        }
-    }
 
 //constructor:
     Matrix::Matrix(std::vector<double> v, int row, int col) {
@@ -48,6 +41,24 @@ namespace zich{
         }
     }
 
+    Matrix::Matrix() {
+        vector<double> v = {1};
+        int col = 1;
+        int row = 1;
+        checkLegal(v, col, row);
+        this->_mat.resize(size_t(row));
+        for (size_t i= 0 ; i< row; i++){
+            this->_mat.at(i).resize(size_t(col));
+        }
+        for (size_t r=0, i=0; r<row; r++){
+            for (size_t c = 0; c < col; ++c) {
+                this->_mat.at(r).at(c) = v.at(i);
+                i++;
+            }
+        }
+    }
+
+
 
 //----------------------------------------
 // basic operators
@@ -60,10 +71,8 @@ namespace zich{
     }
 
     Matrix operator--(Matrix &c1){
-        c1-=1; //Todo: change!
+        c1-=1;
         return c1;
-//        Matrix ans = c1-1;
-//        return c1;
     }
 
     Matrix Matrix::operator++(int) {
@@ -117,7 +126,7 @@ namespace zich{
 //----------------------------------------
 
     Matrix Matrix::operator+=(const Matrix &c1) {
-        checkLegalOper(*this, c1);
+        this->checkLegalOper(c1);
         for (size_t r= 0 ; r < c1.getRow(); r++) {
             for (size_t c = 0; c < c1.getColmn(); c++) {
                 this->_mat.at(r).at(c) += c1._mat.at(r).at(c);
@@ -126,7 +135,7 @@ namespace zich{
         return *this;
     }
     Matrix Matrix::operator-=(const Matrix &c1) {
-        checkLegalOper(*this, c1);
+        this->checkLegalOper(c1);
         for (size_t r= 0 ; r < c1.getRow(); r++) {
             for (size_t c = 0; c < c1.getColmn(); c++) {
                 this->_mat.at(r).at(c) -= c1._mat.at(r).at(c);
@@ -135,7 +144,7 @@ namespace zich{
         return *this;
     }
     Matrix Matrix::operator*=(const Matrix &c1) {
-        checkLegalMul(*this, c1);
+        this->checkLegalMul(c1);
         //resize new matrix:
         vector<vector<double>> temp;
         temp.resize(size_t(this->getRow()));
@@ -192,7 +201,7 @@ namespace zich{
     }
 
     Matrix operator-(const Matrix& c1, const Matrix& c2) {
-        c1.checkLegalOper(c1, c2);
+        c1.checkLegalOper(c2);
         vector<double> v;
         for (size_t r= 0 ; r < c1.getRow(); r++) {
             for (size_t c = 0; c < c1.getColmn(); c++) {
@@ -204,7 +213,7 @@ namespace zich{
     }
 
     Matrix operator*(Matrix &c1, const Matrix &c2) {
-        c1.checkLegalMul(c1, c2);
+        c1.checkLegalMul(c2);
         //resize new matrix:
         vector<vector<double>> temp;
         temp.resize(size_t(c1.getRow()));
@@ -235,20 +244,10 @@ namespace zich{
             }
         }
         return ans;
-
-
-//        c1.checkLegalOper(c1, c2);
-//        vector<double> v;
-//        for (size_t r= 0 ; r < c1.getRow(); r++) {
-//            for (size_t c = 0; c < c1.getColmn(); c++) {
-//                v.push_back(c1._mat.at(r).at(c) * c2._mat.at(r).at(c));
-//            }
-//        }
-//        return Matrix(v, c1.getRow(),c1.getColmn());
     }
 
     Matrix operator+(const Matrix &c1, const Matrix &c2){
-        c1.checkLegalOper(c1, c2);
+        c1.checkLegalOper(c2);
         vector<double> v;
         for (size_t r= 0 ; r < c1.getRow(); r++) {
             for (size_t c = 0; c < c1.getColmn(); c++) {
@@ -258,16 +257,6 @@ namespace zich{
         Matrix ans(v, c1.getRow(),c1.getColmn());
         return ans;
     }
-
-//    Matrix operator-(double d, const Matrix &c1){
-//        vector<double> v;
-//        for (size_t r= 0 ; r < c1.getRow(); r++) {
-//            for (size_t c = 0; c < c1.getColmn(); c++) {
-//                v.push_back(d - c1._mat.at(r).at(c));
-//            }
-//        }
-//        return Matrix(v, c1.getRow(),c1.getColmn());
-//    }
 
     Matrix operator*(double d, const Matrix &c1){
         vector<double> v;
@@ -290,12 +279,6 @@ namespace zich{
         Matrix ans(v, c1.getRow(),c1.getColmn());
         return ans;
     }
-
-//                    Todo:
-//    Matrix operator+(double d, const Matrix &c2){
-//        vector<double> a = {0,1};
-//        return Matrix(a, 1,1);
-//    }
 
     Matrix operator-=(Matrix &c1, double d){
         for (size_t r= 0 ; r < c1.getRow(); r++) {
@@ -325,7 +308,7 @@ namespace zich{
     }
 
     bool operator==(const Matrix& c1, const Matrix& c2) {
-        c1.checkLegalOper(c1, c2);
+        c1.checkLegalOper(c2);
         for (size_t r= 0 ; r < c1.getRow(); r++) {
             for (size_t c = 0; c < c1.getColmn(); c++) {
                 if (c1._mat.at(r).at(c) != c2._mat.at(r).at(c)){
@@ -341,47 +324,40 @@ namespace zich{
     }
 
     bool operator<(const Matrix& c1, const Matrix& c2) {
-        c1.checkLegalOper(c1, c2);
-        double sum1, sum2;
+        c1.checkLegalOper(c2);
+        double sum1=0;
+        double sum2=0;
         for (size_t r= 0 ; r < c1.getRow(); r++) {
             for (size_t c = 0; c < c1.getColmn(); c++) {
                 sum1 += c1._mat.at(r).at(c);
                 sum2 += c2._mat.at(r).at(c);
             }
         }
-        if (sum1<sum2){
-            return true;
-        }
-        return false;
+        return sum1<sum2;
     }
 
     bool operator>(const Matrix& c1, const Matrix& c2) {
-        c1.checkLegalOper(c1, c2);
-        double sum1, sum2;
+        c1.checkLegalOper(c2);
+        double sum1=0;
+        double sum2=0;
         for (size_t r= 0 ; r < c1.getRow(); r++) {
             for (size_t c = 0; c < c1.getColmn(); c++) {
-                sum1 += c1._mat.at(r).at(c);
+                sum1 += (c1._mat.at(r).at(c));
                 sum2 += c2._mat.at(r).at(c);
             }
         }
-        if (sum1>sum2){
-            return true;
-        }
-        return false;
+        return sum1>sum2;
     }
 
     bool operator>=(const Matrix& c1, const Matrix& c2) {
-        c1.checkLegalOper(c1, c2);
-        return c1==c2 || c1>c2;
+        c1.checkLegalOper(c2);
+        return (c1==c2 || c1>c2);
     }
 
     bool operator<=(const Matrix& c1, const Matrix& c2) {
-        c1.checkLegalOper(c1, c2);
-        return c1==c2 || c1<c2;
+        c1.checkLegalOper(c2);
+        return (c1==c2 || c1<c2);
     }
-
-
-
 
 
 //----------------------------------------
@@ -406,16 +382,16 @@ namespace zich{
         return output;
     }
 
-    void string2vector(string s,  vector<double> & v, size_t & col, size_t & row){
+    void Matrix::string2vector(string s,  vector<double> & v, size_t & col, size_t & row){
         row = size_t(count(s.begin(),s.end(),'['));
-        string tempNum = "";
-        double tempD;
+        string tempNum;
+        double tempD=0;
         for (size_t i = 0; i < s.size(); i++) {
             switch (s.at(i)) {
                 case '[':
                     break;
                 case ']':
-                    if (tempNum.size() > 0){
+                    if (!tempNum.empty()){
                         tempD = stod(tempNum);
                         tempNum = "";
                         v.push_back(tempD);
@@ -425,7 +401,7 @@ namespace zich{
                     }
                     break;
                 case ' ':
-                    if (tempNum.size() > 0){
+                    if (!tempNum.empty()){
                         tempD = stod(tempNum);
                         tempNum = "";
                         v.push_back(tempD);
@@ -440,16 +416,22 @@ namespace zich{
                     tempNum += s.at(i);
             }
         }
-        col = v.size()/row;
+        if(row!=0) {
+            col = v.size() / row;
+        }
+        else{
+            throw invalid_argument("Division by zero");
+        }
     }
 
     istream& operator>> (istream& input, Matrix& c) {
         string s;
         std::getline (input,s);
         vector<double> v;
-        size_t col, row;
-        string2vector(s, v, col , row);
-        c.checkLegal(v, col, row);
+        size_t col=0;
+        size_t row=0;
+        Matrix::string2vector(s, v, col , row);
+        Matrix::checkLegal(v, col, row);
         c._mat.resize(row);
         for (size_t i= 0 ; i< row; i++){
             c._mat.at(i).resize(col);
@@ -463,36 +445,37 @@ namespace zich{
         return input;
     }
 
+//----------------------------------------
+// help functions
+//----------------------------------------
 
 
-    static istream& getAndCheckNextCharIs(istream& input, char expectedChar) {
-        char actualChar;
-        input >> actualChar;
-        if (!input) {return input;}
-
-        if (actualChar!=expectedChar) {
-            // failbit is for format error
-            input.setstate(ios::failbit);
-        }
-        return input;
-    }
-
-
-    void Matrix::checkLegalOper(const Matrix &c1, const Matrix &c2) const {
-        if (c1.getRow() != c2.getRow()){
+    void Matrix::checkLegal(vector<double> & v, int col, int row){
+        if (col * row != v.size()) {
             throw invalid_argument("size error");
         }
-        if (c1.getColmn() != c2.getColmn()){
+        if (col < 0){
+            throw invalid_argument("size error");
+        }
+        if (row < 0) {
             throw invalid_argument("size error");
         }
     }
 
-    void Matrix::checkLegalMul(Matrix c1, const Matrix &c2) {
-        if (c1.getColmn() != c2.getRow()){
+    void Matrix::checkLegalOper(const Matrix &c2) const{
+        if (this->getRow() != c2.getRow()){
+            throw invalid_argument("size error");
+        }
+        if (this->getColmn() != c2.getColmn()){
             throw invalid_argument("size error");
         }
     }
 
+    void Matrix::checkLegalMul(const Matrix &c2) const{
+        if (this->getColmn() != c2.getRow()){
+            throw invalid_argument("size error");
+        }
+    }
 
 }
 
